@@ -24,3 +24,10 @@ spring:
             - Path=/second-service/**
           filters:
             - CustomFilter
+      default-filters:
+        - name : GlobalFilter
+          args:
+            baseMessage: Spring Cloud Gateway Global Filter
+            preLogger: true
+            postLogger: true
+
