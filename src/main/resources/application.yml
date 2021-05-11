@@ -7,6 +7,8 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 spring:
+  jwt:
+    secret: memberServiceSecretKey
   application:
     name: apigateway-service
   cloud:
@@ -15,9 +17,28 @@ spring:
         - id: member-service
           uri: lb://MEMBER-SERVICE
           predicates:
-            - Path=/v1/member-service/**
+            - Path=/v1/member-service/login
+            - Method=POST
           filters:
+            - RemoveRequestHeader=Cookie
             - RewritePath=/(?<version>.*)/member-service/(?<path>.*),/$\{version}/$\{path}
+        - id: member-service
+          uri: lb://MEMBER-SERVICE
+          predicates:
+            - Path=/v1/member-service/members
+            - Method=POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/(?<version>.*)/member-service/(?<path>.*),/$\{version}/$\{path}
+        - id: member-service
+          uri: lb://MEMBER-SERVICE
+          predicates:
+            - Path=/v1/member-service/**
+            - Method=GET
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/(?<version>.*)/member-service/(?<path>.*),/$\{version}/$\{path}
+            - AuthorizationHeaderFilter
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:
