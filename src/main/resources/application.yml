@@ -7,8 +7,6 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka
 spring:
-  jwt:
-    secret: memberServiceSecretKey
   application:
     name: apigateway-service
   cloud:
@@ -39,6 +37,14 @@ spring:
             - RemoveRequestHeader=Cookie
             - RewritePath=/(?<version>.*)/member-service/(?<path>.*),/$\{version}/$\{path}
             - AuthorizationHeaderFilter
+        - id: member-service
+          uri: lb://MEMBER-SERVICE
+          predicates:
+            - Path=/member-service/actuator/**
+            - Method=GET, POST
+          filters:
+            - RemoveRequestHeader=Cookie
+            - RewritePath=/member-service/(?<path>.*),/$\{path}
         - id: catalog-service
           uri: lb://CATALOG-SERVICE
           predicates:
@@ -47,27 +53,18 @@ spring:
           uri: lb://ORDER-SERVICE
           predicates:
             - Path=/order-service/**
-        - id: first-service
-          uri: lb://MY-FIRST-SERVICE
-          predicates:
-            - Path=/first-service/**
-          filters:
-            - CustomFilter
-        - id: second-service
-          uri: lb://MY-SECOND-SERVICE
-          predicates:
-            - Path=/second-service/**
-          filters:
-            - name: CustomFilter
-            - name: LoggingFilter
-              args:
-                baseMessage: Logging filter added
-                preLogger: true
-                postLogger: true
       default-filters:
         - name : GlobalFilter
           args:
             baseMessage: Spring Cloud Gateway Global Filter
             preLogger: true
             postLogger: true
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: info, refresh, health, beans, httptrace
 
