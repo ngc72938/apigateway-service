@@ -59,7 +59,7 @@ spring:
           predicates:
             - Path=/order-service/**
       default-filters:
-        - name : GlobalFilter
+        - name: GlobalFilter
           args:
             baseMessage: Spring Cloud Gateway Global Filter
             preLogger: true

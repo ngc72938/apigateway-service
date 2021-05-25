@@ -14,7 +14,7 @@ public class ApigatewayServiceApplication {
     }
 
     @Bean
-    public HttpTraceRepository httpTraceRepository(){
+    public HttpTraceRepository httpTraceRepository() {
         return new InMemoryHttpTraceRepository();
     }
 }
