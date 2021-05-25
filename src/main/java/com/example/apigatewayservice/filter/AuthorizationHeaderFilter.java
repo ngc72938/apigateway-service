@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -28,10 +27,10 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public static class Config{
+    public static class Config {
     }
 
-    public AuthorizationHeaderFilter(){
+    public AuthorizationHeaderFilter() {
         super(Config.class);
     }
 
@@ -39,15 +38,15 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
-            if(!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
+            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
                 return onError(exchange, "No authorization header", HttpStatus.UNAUTHORIZED);
             }
 
-            String headerToken  = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+            String headerToken = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
             String jwtToken = headerToken.replace("Bearer", "");
 
-            if(!isJwtValid(jwtToken)){
-                return onError(exchange,"JWT token is not valid", HttpStatus.UNAUTHORIZED);
+            if (!isJwtValid(jwtToken)) {
+                return onError(exchange, "JWT token is not valid", HttpStatus.UNAUTHORIZED);
             }
             return chain.filter(exchange);
         };
@@ -60,12 +59,12 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
             subject = Jwts.parser().setSigningKey(secretKey)
                     .parseClaimsJws(jwtToken).getBody();
 
-        }catch (Exception e){
+        } catch (Exception e) {
             returnValue = false;
             e.printStackTrace();
         }
 
-        if (subject == null || subject.isEmpty()){
+        if (subject == null || subject.isEmpty()) {
             returnValue = false;
         }
         return returnValue;
